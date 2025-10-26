@@ -4,14 +4,13 @@ package com.bien.todo;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
-
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        ToDo tasks = new ToDo();
+        tasks.add(new Task("Washing Dishes","Washing dishes in the sink", Task.taskStatus.InProgress, Task.Priority.LOW));
+        Task doHomeWork = new Task("Do homework","Solve DSA+SQL problems", Task.taskStatus.InProgress, Task.Priority.URGENT);
+        doHomeWork.setHigh();
+        tasks.add(doHomeWork);
+        tasks.add(new Task("Playing Marvel Rivals","Derank to Diamond", Task.taskStatus.InProgress, Task.Priority.URGENT));
+        tasks.remove(doHomeWork);
+        tasks.printTasks();
     }
 }
