@@ -1,27 +1,62 @@
 package com.bien.todo;
-public class Task {
+
+import java.util.Objects;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.io.Serializable;
+
+public class Task implements Serializable, Comparable<Task> {
+    private static final long serialVersionUID = 1L;
+    private static int idCounter =0;
+
+    private int id;
     private String name;
     private String description;
-    private taskStatus status;
+    private TaskStatus status;
     private Priority priority;
-    public enum taskStatus{
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime dueDate;
+
+    public enum TaskStatus{
         InProgress,
         Completed,
     }
     public enum Priority{
-        URGENT,
-        HIGH,
-        MEDIUM,
-        LOW,
+        URGENT(1),
+        HIGH(2),
+        MEDIUM(3),
+        LOW(4);
+
+        private final int level;
+        Priority(int level) {
+            this.level = level;
+        }
+        public int getLevel() {
+            return level;
+        }
     }
 
-    public Task(String name, String description,taskStatus status,Priority priority) {
-        this.name = name;
-        this.description = description;
-        this.status = status;
-        this.priority = priority;
+    public Task(String name, String description,TaskStatus status,Priority priority) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Task name cannot be empty");
+        }
+        this.id = idCounter++;
+        this.name = name.trim();
+        this.description = description != null ? description.trim() :"";
+        this.status = status != null? status : TaskStatus.InProgress;
+        this.priority = priority != null? priority:Priority.MEDIUM;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
 
     }
+    public Task(String name, String description){
+        this(name,description,TaskStatus.InProgress,Priority.MEDIUM);
+    }
+    public int getId(){
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -29,32 +64,85 @@ public class Task {
         return description;
     }
     public Priority getPriority() {
-        return this.priority;
+        return priority;
     }
-    public taskStatus getStatus() {
-        return this.status;
+    public TaskStatus getStatus() {
+        return status;
     }
-    public void setUrgent(){
-        Task.Priority priority = Task.Priority.URGENT;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
-    public void setHigh(){
-        Task.Priority priority = Task.Priority.HIGH;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
-    public void setMedium(){
-        Task.Priority priority = Task.Priority.MEDIUM;
+    public LocalDateTime getDueDate() {
+        return dueDate;
     }
-    public void setLow(){
-        Task.Priority priority = Task.Priority.LOW;
+    public void setName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Task name cannot be empty");
+        }
+        this.name = name.trim();
+        this.updatedAt = LocalDateTime.now();
+    }
+    public void setDescription(String description) {
+        this.description = description != null ? description.trim() :"";
+        this.updatedAt = LocalDateTime.now();
+    }
+    public void setPriority(Priority priority) {
+        this.priority = priority != null?priority:Priority.MEDIUM;
+        this.updatedAt = LocalDateTime.now();
+    }
+    public void setStatus(TaskStatus status) {
+        this.status = status != null? status : TaskStatus.InProgress;
+        this.updatedAt = LocalDateTime.now();
+    }
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
+        this.updatedAt = LocalDateTime.now();
     }
     public void setCompleted(){
-        this.status = taskStatus.Completed;
+        this.status = TaskStatus.Completed;
+        this.updatedAt = LocalDateTime.now();
     }
     public void setInProgress(){
-        this.status = taskStatus.InProgress;
+        this.status = TaskStatus.InProgress;
+        this.updatedAt = LocalDateTime.now();
+    }
+    public boolean isCompleted(){
+        return this.status == TaskStatus.Completed;
+    }
+
+    @Override
+    public int compareTo(Task o) {
+        int priorityCompare = Integer.compare(this.getPriority().getLevel(),
+                o.getPriority().getLevel());
+        return priorityCompare !=0 ? priorityCompare: this.status.compareTo(o.status);
     }
     @Override
-    public String toString() {
-        return this.name+" : "+this.description+" "+ this.getPriority().toString()+" "+"("+this.getStatus().toString()+")";
+    public boolean equals(Object o ){
+        if (this == o) return true;
+        if (o==null || !(o instanceof Task)) return false;
+        Task task = (Task) o;
+        return Objects.equals(name, task.name) && Objects.equals(description, task.description);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description);
+    }
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("[").append(id).append("]");
+        sb.append(name);
+        if (dueDate != null){
+            sb.append(" (Due: ").append(dueDate).append(")");
+        }
+        sb.append(" [").append(priority).append("]");
+        sb.append(" [").append(status).append("]");
+        return sb.toString();
+    }
+    public static void resetIdCounter(){
+        idCounter = 0;
     }
 
 }
