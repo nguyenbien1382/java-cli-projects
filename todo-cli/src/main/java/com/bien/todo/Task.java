@@ -1,5 +1,6 @@
 package com.bien.todo;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class Task implements Serializable, Comparable<Task> {
     private Priority priority;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime dueDate;
+    private LocalDate dueDate;
 
     public enum TaskStatus{
         InProgress,
@@ -75,7 +76,7 @@ public class Task implements Serializable, Comparable<Task> {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-    public LocalDateTime getDueDate() {
+    public LocalDate getDueDate() {
         return dueDate;
     }
     public void setName(String name) {
@@ -97,7 +98,7 @@ public class Task implements Serializable, Comparable<Task> {
         this.status = status != null? status : TaskStatus.InProgress;
         this.updatedAt = LocalDateTime.now();
     }
-    public void setDueDate(LocalDateTime dueDate) {
+    public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
         this.updatedAt = LocalDateTime.now();
     }
@@ -111,6 +112,20 @@ public class Task implements Serializable, Comparable<Task> {
     }
     public boolean isCompleted(){
         return this.status == TaskStatus.Completed;
+    }
+    public boolean isOverdue(){
+        return dueDate !=null &&
+                LocalDate.now().isAfter(dueDate)
+                && status != TaskStatus.Completed;
+    }
+    public boolean isDueToday(){
+        return dueDate != null && dueDate.equals(LocalDateTime.now());
+    }
+    public boolean isDueSoon(int days) {
+        if (dueDate == null || isCompleted()) return false;
+        LocalDate today = LocalDate.now();
+        return !today.isAfter(dueDate) &&
+                today.plusDays(days).isAfter(dueDate);
     }
 
     @Override

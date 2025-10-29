@@ -1,6 +1,6 @@
 package com.bien.todo;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Scanner;
 
 
@@ -99,7 +99,7 @@ public class ToDoApp {
 
         System.out.print("Set due date?(y/n)");
         if(scanner.nextLine().trim().equalsIgnoreCase("y")){
-            LocalDateTime dueDate = inputDate();
+            LocalDate dueDate = inputDate();
             if(dueDate != null){
                 task.setDueDate(dueDate);
             }
