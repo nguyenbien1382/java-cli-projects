@@ -1,6 +1,10 @@
 package com.bien.todo;
 
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -116,5 +120,104 @@ public class ToDo {
              if (t2.getDueDate()==null) return -1;
              return t1.getDueDate().compareTo(t2.getDueDate());
          });
+    }
+    public void sortByCreatedDate(){
+        tasks.sort(Comparator.comparing(Task::getCreatedAt));
+    }
+    //======Display Operations ===========
+    public void printTasks(ArrayList<Task> tasks,String title){
+        System.out.println(title + " ("+tasks.size()+")");
+        if (tasks.isEmpty()) System.out.println("No tasks found");
+        for (int i = 0; i<tasks.size(); i++){
+            System.out.println(i+". "+tasks.get(i));
+        }
+    }
+
+    public void printTasks() {
+        printTasks(tasks,"All tasks");
+    }
+    public void printTasksByStatus(Task.TaskStatus status){
+        ArrayList<Task> filtered = getTasksByStatus(status);
+        printTasks(filtered,"Tasks by status: "+status);
+    }
+    public void printTasksByPriority(Task.Priority priority){
+        ArrayList<Task> filtered = getTasksByPriority(priority);
+        printTasks(filtered,"Tasks by priority: "+priority);
+    }
+    public void printOverdueTasks(){
+        ArrayList<Task> overdue = getTasksDueToday();
+        printTasks(overdue,"Overdue tasks");
+    }
+    public void printTasksDueToday(){
+        ArrayList<Task> tasks = getTasksDueToday();
+        printTasks(tasks,"Tasks due today");
+    }
+    public void printStatistics(){
+        int total = tasks.size();
+        long completed = tasks.stream().filter(Task::isCompleted).count();
+        long inProgress = total - completed;
+        long overdue =tasks.stream().filter(Task::isOverdue).count();
+        System.out.println("Statistics:");
+        System.out.println("Total tasks: "+total);
+        System.out.println("Completed tasks: "+completed);
+        System.out.println("InProgress tasks: "+inProgress);
+        System.out.println("Overdue tasks: "+overdue);
+        if (total>0){
+            double completetionRate = (completed*100.0)/total;
+            System.out.println("Completion rate: "+completetionRate+"%");
+        }
+
+    }
+    public void printDashBoard(){
+        System.out.println("Task Dashboard");
+        //Tasks due today
+        ArrayList<Task> dueToday = getTasksDueToday();
+        if (!dueToday.isEmpty()){
+            System.out.println("Tasks due today :");
+            for (Task task : dueToday){
+                System.out.println(task);
+            }
+        }
+        //Overdue
+        ArrayList<Task> overdue = getOverdueTasks();
+        if(!overdue.isEmpty()){
+            System.out.println("Overdue tasks :");
+            for (Task task : overdue){
+                System.out.println(task);
+            }
+        }
+        //Due soon ( 3 days)
+        ArrayList<Task> dueSoon = getTasksDueSoon(3);
+        if(!dueSoon.isEmpty()){
+            System.out.println("Tasks due soon in the next 3 days :");
+            for (Task task : dueSoon){
+                System.out.println(task);
+            }
+        }
+        //Urgent tasks
+        ArrayList<Task> urgent = getTasksByPriority(Task.Priority.URGENT);
+        if(!urgent.isEmpty()){
+            System.out.println(" Urgent tasks :");
+            for (Task task : urgent.stream().filter(t->!t.isCompleted()).collect(Collectors.toList())){
+                System.out.println(task);
+            }
+        }
+        if (dueToday.isEmpty() && overdue.isEmpty() && dueSoon.isEmpty() && urgent.isEmpty()) {
+            System.out.println("\n✅ All caught up! No urgent tasks.");
+        }
+
+    }
+    //========Persistence Operations===============
+    public void saveToFile(String fileName){
+        try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName)))
+        {
+            oos.writeObject(tasks);
+            System.out.println("Tasks saved successfully to "+ fileName);
+         } catch (IOException e){
+            System.out.println("Error saving file"+ e.getMessage());
+        }
+    }
+    public void saveToFile(){
+        saveToFile(DEFAULT_SAVE_FILE);
     }
 }

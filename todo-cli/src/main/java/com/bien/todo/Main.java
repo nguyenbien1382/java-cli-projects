@@ -13,7 +13,7 @@ public class Main {
         tasks.add(doHomeWork);
         tasks.add(new Task("Playing Marvel Rivals","Derank to Diamond", Task.TaskStatus.InProgress, Task.Priority.URGENT));
         tasks.remove(doHomeWork);
-        tasks.printTasks();
+
 
     }
 }
