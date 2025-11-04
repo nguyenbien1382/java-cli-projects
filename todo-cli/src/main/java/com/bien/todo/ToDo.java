@@ -1,9 +1,8 @@
 package com.bien.todo;
 
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
+import java.sql.Array;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -219,5 +218,31 @@ public class ToDo {
     }
     public void saveToFile(){
         saveToFile(DEFAULT_SAVE_FILE);
+    }
+    @SuppressWarnings("unchecked")
+    public void loadFromFile(String fileName){
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))){
+            tasks = (ArrayList<Task>) ois.readObject();
+            System.out.println("Tasks loaded successfully from "+ fileName);
+        }
+        catch (IOException | ClassNotFoundException e){
+            System.out.println("Error loading tasks"+ e.getMessage());
+        }
+    }
+    // Utility methods
+    public int size(){
+        return tasks.size();
+    }
+    public boolean isEmpty(){
+        return tasks.isEmpty();
+    }
+    public boolean isValidIndex(int index){
+        return index >= 0 && index < tasks.size();
+    }
+
+    private String truncate(String str, int maxLength){
+        if(str.length() <= maxLength) return str;
+        return str.substring(0, maxLength - 3) + "...";
+
     }
 }
