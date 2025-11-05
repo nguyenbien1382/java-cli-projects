@@ -6,10 +6,11 @@ import java.sql.Array;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ToDo {
-    private ArrayList<Task> tasks;
+    private ArrayList<Task> tasks = new ArrayList<>();
     private static final String DEFAULT_SAVE_FILE = "tasks.dat";
 
     public ToDo() {
@@ -103,8 +104,8 @@ public class ToDo {
     }
 
  //===============Sorting Operations======================
-    public void sortByPriority(){
-        tasks.sort(Comparator.comparing(t->t.getPriority().getLevel()));
+    public void sortByPriority() {
+        tasks.sort(Comparator.comparing((Task t) -> t.getPriority().getLevel()));
     }
     public void sortByStatus(){
         tasks.sort(Comparator.comparing(Task::getStatus));
@@ -113,12 +114,10 @@ public class ToDo {
         tasks.sort(Comparator.comparing(Task::getName,String.CASE_INSENSITIVE_ORDER));
     }
     public void sortByDueDate(){
-         tasks.sort((t1,t2)-> {
-             if (t1.getDueDate() == null && t2.getDueDate() == null) return 0;
-             if (t1.getDueDate()==null) return 1;
-             if (t2.getDueDate()==null) return -1;
-             return t1.getDueDate().compareTo(t2.getDueDate());
-         });
+         tasks.sort(Comparator.comparing(
+                 Task::getDueDate,
+                 Comparator.nullsLast(Comparator.naturalOrder())
+         ));
     }
     public void sortByCreatedDate(){
         tasks.sort(Comparator.comparing(Task::getCreatedAt));
@@ -144,12 +143,19 @@ public class ToDo {
         printTasks(filtered,"Tasks by priority: "+priority);
     }
     public void printOverdueTasks(){
-        ArrayList<Task> overdue = getTasksDueToday();
+        ArrayList<Task> overdue = getOverdueTasks();
         printTasks(overdue,"Overdue tasks");
     }
     public void printTasksDueToday(){
         ArrayList<Task> tasks = getTasksDueToday();
         printTasks(tasks,"Tasks due today");
+    }
+    public void printTaskDetails (int index){
+        if (!isValidIndex(index)) {
+            System.out.println("Invalid task number");
+            return;
+        }
+        System.out.println("\n" + tasks.get(index).toDetailedString());
     }
     public void printStatistics(){
         int total = tasks.size();
@@ -228,6 +234,9 @@ public class ToDo {
         catch (IOException | ClassNotFoundException e){
             System.out.println("Error loading tasks"+ e.getMessage());
         }
+    }
+    public void loadFromFile(){
+        loadFromFile(DEFAULT_SAVE_FILE);
     }
     // Utility methods
     public int size(){

@@ -156,6 +156,36 @@ public class Task implements Serializable, Comparable<Task> {
         sb.append(" [").append(status).append("]");
         return sb.toString();
     }
+    public String toDetailedString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("╔════════════════════════════════════════════════════════════╗\n");
+        sb.append(String.format("║ Task #%-4d                                                ║\n", id));
+        sb.append("╠════════════════════════════════════════════════════════════╣\n");
+        sb.append(String.format("║ Name: %-52s ║\n", truncate(name, 52)));
+        if (!description.isEmpty()) {
+            sb.append(String.format("║ Desc: %-52s ║\n", truncate(description, 52)));
+        }
+        sb.append(String.format("║ Priority: %-47s ║\n", priority));
+        sb.append(String.format("║ Status: %-49s ║\n", status));
+        if (dueDate != null) {
+            String dueInfo = dueDate.toString();
+            if (isOverdue()) dueInfo += " (OVERDUE!)";
+            else if (isDueToday()) dueInfo += " (TODAY)";
+            sb.append(String.format("║ Due Date: %-47s ║\n", dueInfo));
+        }
+        sb.append(String.format("║ Created: %-48s ║\n",
+                createdAt.toString().substring(0, 19)));
+        sb.append("╚════════════════════════════════════════════════════════════╝");
+        return sb.toString();
+    }
+
+    private String truncate(String str, int maxLength) {
+        if (str.length() <= maxLength) return str;
+        return str.substring(0, maxLength - 3) + "...";
+    }
+
+
+
     public static void resetIdCounter(){
         idCounter = 0;
     }
